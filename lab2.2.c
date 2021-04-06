@@ -9,7 +9,6 @@ char randomSymbol() {
 typedef struct {
   char symbol;
   struct list * next_p;
-  struct list * previous_p;
 } list;
 
 list * listInit(char item) {
@@ -18,7 +17,6 @@ list * listInit(char item) {
 
   l_p->symbol = item;
   l_p->next_p = NULL;
-  l_p->previous_p = NULL;
   return l_p;
 }
 
@@ -26,10 +24,8 @@ list * listAdd(list * l_p, char item) {
   list * node_p;
   node_p = malloc( sizeof(list) );
 
-  l_p->previous_p = node_p;
   node_p->symbol = item;
   node_p->next_p = l_p;
-  node_p->previous_p = NULL;
   return node_p;
 } 
 
@@ -37,8 +33,8 @@ void printList(list * l_p) {
   list * this_p = l_p;
 
   while (this_p) {
-    printf("Ptr = %d Symbol = %c Next = %d Previous = %d \n", 
-      this_p, this_p->symbol, this_p->next_p, this_p->previous_p);
+    printf("Ptr = %d Symbol = %c Next = %d \n", 
+      this_p, this_p->symbol, this_p->next_p);
 
     size_t node_p = this_p->next_p;
     this_p = node_p;
@@ -48,7 +44,7 @@ void printList(list * l_p) {
 list * deleteList(list * l_p) {
   size_t node_p = l_p->next_p;
 
-  if (l_p) free(l_p);
+  if (!l_p) free(l_p);
   return node_p;
 }
 
@@ -82,9 +78,11 @@ int main()
   printList(reversedFIFO);
   printf("\n");
   
-  for (int i = 0; i < n - 1; i++) {
+  for (int i = 0; i < n; i++) {
     FIFO = deleteList(FIFO);
-    reversedFIFO = deleteList(FIFO);
+  }
+  for (int i = 0; i < n; i++) {
+    reversedFIFO = deleteList(reversedFIFO);
   }
   
   printList(FIFO);
