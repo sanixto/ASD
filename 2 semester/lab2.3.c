@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include<windows.h>
-#include<math.h>
+#include <windows.h>
+#include <math.h>
 #define n 10 //number of vertices
 
 double ** randm(int rows, int columns)

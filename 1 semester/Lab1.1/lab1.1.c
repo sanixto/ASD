@@ -2,7 +2,7 @@
 
 int main()
 {
-  double x,y;
+  double x, y;
   printf("Enter x \n");
   scanf("%lf", &x);
 
@@ -12,23 +12,21 @@ int main()
     {
       y = 4 * x * x + 2;
       printf("y = %.2f\n", y);
-    }
-  else 
-    if (x > 20)
+    } else  if (x > 20)
     {
       y = 3 * x * x * x / 4 - 5;
       printf("y= %.2f\n", y);
-    }
-  else
+    } else
+    {
       printf("Error\n");
-  }
-else
-  if (x <= -30)
+    }
+  } else if (x <= -30)
   {
     y = 3 * x * x * x / 4 - 5;
     printf("y = %.2lf\n", y);
+  } else 
+  {
+    printf("Error\n");
   }
-else printf("Error\n");
-
 return 0;
 }
