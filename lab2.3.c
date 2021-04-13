@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include<windows.h>
 #include<math.h>
-#define n 10
+#define n 10 //number of vertices
 
 double ** randm(int rows, int columns)
 {
@@ -71,8 +71,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                          WS_OVERLAPPEDWINDOW, //Стиль окна - перекрывающееся
                          100, //положение окна на экране по х
                          100, //положение по у
-                         360, //ширина
-                         250, //висота
+                         900, //ширина
+                         900, //висота
                          (HWND)NULL, //идентификатор родительского окна
                          (HMENU)NULL, //идентификатор меню
                          (HINSTANCE)hInstance, //идентификатор экземпляра программы
@@ -86,10 +86,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 //Цикл одержання повідомлень
 
     while ( GetMessage(&lpMsg, hWnd, 0, 0) ) //Получаем сообщение из очереди
-      {
-        TranslateMessage(&lpMsg); //Преобразует сообщения клавиш в символы
-        DispatchMessage(&lpMsg); //Передаёт сообщение соответствующей функции окна
-      }
+    {
+      TranslateMessage(&lpMsg); //Преобразует сообщения клавиш в символы
+      DispatchMessage(&lpMsg); //Передаёт сообщение соответствующей функции окна
+    }
     return(lpMsg.wParam);
 }
 
@@ -99,7 +99,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
 {
   HDC hdc; //создаём контекст устройства
   PAINTSTRUCT ps; //создаём экземпляр структуры графического вывода
-
+  /*
   void arrow(float fi, int px, int py)
   {
     fi = 3.1416 * (180.0 - fi) / 180.0;
@@ -114,7 +114,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
     LineTo(hdc, rx, ry);
     //  return 0;
   }
-
+  */
 //Цикл обработки сообщений
   switch(messg)
   {
@@ -122,33 +122,65 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   case WM_PAINT :
 
   hdc = BeginPaint(hWnd, &ps);
-  char * nn[3] = {"1", "2", "3"};
-  int nx[3] = {100, 200, 300};
-  int ny[3] = {70, 70, 70};
+  char * nn[n] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+  int nx[n] = {};
+  int ny[n] = {};
+  int num = 100;
   int dx = 16, dy = 16, dtx = 5;
-  int i;
   HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
   HPEN KPen = CreatePen(PS_SOLID, 1, RGB(20, 20, 5));
 
-  SelectObject(hdc, KPen);
-  MoveToEx(hdc, nx[0], ny[0], NULL); //сделать текущими координаты x1, y1
-  LineTo(hdc, nx[1], ny[1]);
+  SelectObject(hdc, BPen);
 
-  arrow(0, nx[1] - dx, ny[1]);
+  for (int i = 0; i < n; i++)
+  {
+    if (i == 0)
+    {
+      nx[i] = 500;
+      ny[i] = 100;
+    } else if (i <= 0.3*n)
+    {
+      nx[i] = nx[i - 1] + num;
+      ny[i] = ny[i - 1] + num;
+    } else if (i <= 0.7*n)
+    {
+      nx[i] = nx[i - 1] - 1.5*num;
+      ny[i] = ny[i - 1];
+    } else
+    {
+      nx[i] = nx[i - 1] + num;
+      ny[i] = ny[i - 1] - num;
+    }
+    Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
+    TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
+  }
+
+  srand(0404);
+  double ** T = randm(n, n);
+  double cf = 1.0 - 4*0.005 - 0.25;
+  double ** A = mulmr(cf, T);
+
+  printf("Matrix non-derected \n");
+  for (int i = 0; i < n; i++)
+  {
+      for (int j = 0; j < n; j++)
+      {
+          printf("%.0f ", A[i][j]);
+      }
+      printf("\n");
+  }
+/*
+    SelectObject(hdc, KPen);
+    MoveToEx(hdc, nx[0], ny[0], NULL); //сделать текущими координаты x1, y1
+    LineTo(hdc, nx[1], ny[1]);
+*/
+  //arrow(0, nx[1] - dx, ny[1]);
 
   //  BOOL Arc(HDC hdc, int xLeft, int yTop, int xRight, int yBottom,
   //int xStart, int yStart, int xEnd, int yEnd);
 
-  Arc(hdc, nx[0], ny[0] - 40, nx[2], ny[2] + 40, nx[2], ny[2], nx[0], ny[0]);
-  arrow(-45.0,nx[2]-dx*0.5,ny[2]-dy*0.8);
-
-  SelectObject(hdc, BPen);
-
-  for(i = 0; i <= 2; i++)
-  {
-    Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
-    TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 1);
-  }
+  // Arc(hdc, nx[0], ny[0] - 40, nx[2], ny[2] + 40, nx[2], ny[2], nx[0], ny[0]);
+  //arrow(-45.0,nx[2]-dx*0.5,ny[2]-dy*0.8);
 
   EndPaint(hWnd, &ps);//малювання закінчене
   break;
