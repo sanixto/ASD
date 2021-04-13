@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <math.h>
-#define n 10 //number of vertices
+#define n 10
 
 double ** randm(int rows, int columns)
 {
@@ -69,10 +69,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     hWnd = CreateWindow(ProgName, //Имя программы
                         "LAB 3 Gakavy IP-04", //Заголовок окна
                          WS_OVERLAPPEDWINDOW, //Стиль окна - перекрывающееся
-                         100, //положение окна на экране по х
+                         400, //положение окна на экране по х
                          100, //положение по у
                          900, //ширина
-                         900, //висота
+                         600, //висота
                          (HWND)NULL, //идентификатор родительского окна
                          (HMENU)NULL, //идентификатор меню
                          (HINSTANCE)hInstance, //идентификатор экземпляра программы
@@ -136,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   {
     if (i == 0)
     {
-      nx[i] = 500;
+      nx[i] = 400;
       ny[i] = 100;
     } else if (i <= 0.3*n)
     {
@@ -151,16 +151,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
       nx[i] = nx[i - 1] + num;
       ny[i] = ny[i - 1] - num;
     }
-    Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
-    TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
   }
 
-  srand(0404);
+  //srand(0404);
   double ** T = randm(n, n);
   double cf = 1.0 - 4*0.005 - 0.25;
   double ** A = mulmr(cf, T);
 
-  printf("Matrix non-derected \n");
+  printf("Matrix non-directed \n");
   for (int i = 0; i < n; i++)
   {
       for (int j = 0; j < n; j++)
@@ -169,6 +167,62 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
       }
       printf("\n");
   }
+
+  SelectObject(hdc, KPen);
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (A[i][j] == 1)
+      {
+        MoveToEx(hdc, nx[i], ny[i], NULL);
+        if (i == j)
+        {
+          if (i <= 0.3*n)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+          } else if (i <= 0.7*n)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] + 40, nx[j], ny[j], nx[j], ny[j]);
+          } else
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] - 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+          }
+        } else if (labs(i - j) == 1 || labs(i - j) == n - 1 )
+        {
+          LineTo(hdc, nx[j], ny[j]);
+        } else if (
+                   ((i <= 0.3*n) && (j <= 0.3*n)) ||
+                   (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j <= 0.7*n))) ||
+                   ((i >= 0.7*n) && (j >= 0.7*n)) ||
+                   ((i >= 0.7*n) && (j == 0)) ||
+                   ((i == 0) && (j >= 0.7*n))
+                  )
+        {
+            int nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+            int ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+            int R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+        }else
+        {
+          LineTo(hdc, nx[j], ny[j]);
+        }
+      }
+    }
+  }
+
+  //Arc(hdc, nx[0], ny[0]-40, nx[2], ny[2]+40, nx[2], ny[2], nx[0], ny[0]);
+
+  for (int i = 0; i < n; i++)
+  {
+      for (int j = 0; j < n; j++)
+      {
+        Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
+        TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
+      }
+  }
+
 /*
     SelectObject(hdc, KPen);
     MoveToEx(hdc, nx[0], ny[0], NULL); //сделать текущими координаты x1, y1
@@ -179,7 +233,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   //  BOOL Arc(HDC hdc, int xLeft, int yTop, int xRight, int yBottom,
   //int xStart, int yStart, int xEnd, int yEnd);
 
-  // Arc(hdc, nx[0], ny[0] - 40, nx[2], ny[2] + 40, nx[2], ny[2], nx[0], ny[0]);
+  //Arc(hdc, nx[0], ny[0] - 40, nx[2], ny[2] + 40, nx[2], ny[2], nx[0], ny[0]);
   //arrow(-45.0,nx[2]-dx*0.5,ny[2]-dy*0.8);
 
   EndPaint(hWnd, &ps);//малювання закінчене
