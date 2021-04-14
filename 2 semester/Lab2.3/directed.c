@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <math.h>
 #define n 10
+#define pi 3.1416
 
 double ** randm(int rows, int columns)
 {
@@ -36,89 +37,72 @@ double ** mulmr(double coef, double ** mat)
 //Создаём прототип функции окна, которая будет определена ниже
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-//void arrow(float fi, int px,int py);
-
 //объявляем строку-имя программы
 char ProgName[] = "Лабораторна робота 3";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpszCmdLine, int nCmdShow)
 {
-    HWND hWnd;
-    MSG lpMsg;
+  HWND hWnd;
+  MSG lpMsg;
 
-    WNDCLASS w; //создаём экземпляр структуры WNDCLASS
+  WNDCLASS w;
 
-    w.lpszClassName = ProgName; //имя программы - объявлено выше
-    w.hInstance = hInstance; //идентификатор текущего приложения
-    w.lpfnWndProc = WndProc; //указатель на функцию окна
-    w.hCursor = LoadCursor(NULL, IDC_ARROW); //загружаем курсор
-    w.hIcon = 0; //иконки у нас не будет пока
-    w.lpszMenuName = 0; //и меню пока не будет
-    w.hbrBackground = LTGRAY_BRUSH; //WHITE_BRUSH;// цвет фона окна
-    w.style = CS_HREDRAW|CS_VREDRAW; //стиль - перерисовываемое по х и по у
-    w.cbClsExtra = 0;
-    w.cbWndExtra = 0;
+  w.lpszClassName = ProgName;
+  w.hInstance = hInstance;
+  w.lpfnWndProc = WndProc;
+  w.hCursor = LoadCursor(NULL, IDC_ARROW);
+  w.hIcon = 0;
+  w.lpszMenuName = 0;
+  w.hbrBackground = LTGRAY_BRUSH;
+  w.style = CS_HREDRAW|CS_VREDRAW;
+  w.cbClsExtra = 0;
+  w.cbWndExtra = 0;
 
-    if ( !RegisterClass(&w) ) return 0;
+  if ( !RegisterClass(&w) ) return 0;
 
-   // HWND hWnd;
-    //MSG lpMsg;
+  hWnd = CreateWindow(ProgName,
+                      "LAB 3 Gakavy IP-04",
+                      WS_OVERLAPPEDWINDOW,
+                      400, 100, 900, 600,
+                      (HWND)NULL, (HMENU)NULL,
+                      (HINSTANCE)hInstance,
+                      (HINSTANCE)NULL);
 
-//Создадим окно в памяти, заполнив аргументы CreateWindow
-    hWnd = CreateWindow(ProgName, //Имя программы
-                        "LAB 3 Gakavy IP-04", //Заголовок окна
-                         WS_OVERLAPPEDWINDOW, //Стиль окна - перекрывающееся
-                         400, //положение окна на экране по х
-                         100, //положение по у
-                         900, //ширина
-                         600, //висота
-                         (HWND)NULL, //идентификатор родительского окна
-                         (HMENU)NULL, //идентификатор меню
-                         (HINSTANCE)hInstance, //идентификатор экземпляра программы
-                         (HINSTANCE)NULL); //отсутствие дополнительных параметров
+  ShowWindow(hWnd, nCmdShow);
 
-//Выводим окно из памяти на экран
-    ShowWindow(hWnd, nCmdShow);
-//Обновим содержимое окна
- //   UpdateWindow(hWnd);
-
-//Цикл одержання повідомлень
-
-    while ( GetMessage(&lpMsg, hWnd, 0, 0) ) //Получаем сообщение из очереди
-    {
-      TranslateMessage(&lpMsg); //Преобразует сообщения клавиш в символы
-      DispatchMessage(&lpMsg); //Передаёт сообщение соответствующей функции окна
-    }
-    return(lpMsg.wParam);
+  while ( GetMessage(&lpMsg, hWnd, 0, 0) )
+  {
+    TranslateMessage(&lpMsg);
+    DispatchMessage(&lpMsg);
+  }
+  return(lpMsg.wParam);
 }
 
-//Функция окна
 LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
                         WPARAM wParam, LPARAM lParam)
 {
-  HDC hdc; //создаём контекст устройства
-  PAINTSTRUCT ps; //создаём экземпляр структуры графического вывода
-  /*
+  HDC hdc;
+  PAINTSTRUCT ps;
+
   void arrow(float fi, int px, int py)
   {
-    fi = 3.1416 * (180.0 - fi) / 180.0;
-    int lx, ly, rx, ry; //px,py,
-    // px=150; py=60;
-    lx = px + 15 * cos(fi + 0.3);
-    rx = px + 15 * cos(fi - 0.3);
-    ly = py + 15 * sin(fi + 0.3);
-    ry = py + 15 * sin(fi - 0.3);
+    fi = pi * (180.0 - fi) / 180.0;
+    int lx, ly, rx, ry;
+    px = px - 16 * cos(fi);
+    py = py - 16 * sin(fi);
+    lx = px - 15 * cos(fi + 0.3);
+    rx = px - 15 * cos(fi - 0.3);
+    ly = py - 15 * sin(fi + 0.3);
+    ry = py - 15 * sin(fi - 0.3);
     MoveToEx(hdc, lx, ly, NULL);
     LineTo(hdc, px, py);
     LineTo(hdc, rx, ry);
-    //  return 0;
+    return 0;
   }
-  */
-//Цикл обработки сообщений
+
   switch(messg)
   {
-  //сообщение рисования
   case WM_PAINT :
 
   hdc = BeginPaint(hWnd, &ps);
@@ -153,22 +137,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
     }
   }
 
-  //srand(0404);
+  srand(0404);
   double ** T = randm(n, n);
   double cf = 1.0 - 4*0.005 - 0.25;
   double ** A = mulmr(cf, T);
 
-  printf("Matrix non-directed \n");
+  printf("Matrix directed \n");
+
   for (int i = 0; i < n; i++)
   {
-      for (int j = 0; j < n; j++)
-      {
-          printf("%.0f ", A[i][j]);
-      }
-      printf("\n");
+    for (int j = 0; j < n; j++)
+    {
+      printf("%.0f ", A[i][j]);
+    }
+    printf("\n");
   }
 
   SelectObject(hdc, KPen);
+
+  int nx0, ny0, R;
+  double frsAdd, secAdd;
 
   for (int i = 0; i < n; i++)
   {
@@ -176,43 +164,108 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
     {
       if (A[i][j] == 1)
       {
-        MoveToEx(hdc, nx[i], ny[i], NULL);
-        if (i == j)
+        if ((i <= 0.3*n) && (j<= 0.3*n))
         {
-          if (i <= 0.3*n)
+          if (i == j)
           {
             Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
-          } else if (i <= 0.7*n)
+            arrow(87, nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == 1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(-45, nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == -1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(-225, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
+          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
+          continue;        }
+        if (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j<= 0.7*n)))
+        {
+          if (i == j)
           {
             Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] + 40, nx[j], ny[j], nx[j], ny[j]);
-          } else
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] - 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+            arrow(-87, nx[j], ny[j]);
+            continue;
           }
-        } else if (labs(i - j) == 1 || labs(i - j) == n - 1 )
-        {
-          LineTo(hdc, nx[j], ny[j]);
-        } else if (
-                   ((i <= 0.3*n) && (j <= 0.3*n)) ||
-                   (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j <= 0.7*n))) ||
-                   ((i >= 0.7*n) && (j >= 0.7*n)) ||
-                   ((i >= 0.7*n) && (j == 0)) ||
-                   ((i == 0) && (j >= 0.7*n))
-                  )
-        {
-            int nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-            int ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-            int R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-        }else
-        {
-          LineTo(hdc, nx[j], ny[j]);
+          if (i - j == 1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(180, nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == -1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(0, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
+          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
+          continue;
         }
+        if (
+            ((i >= 0.7*n) && (j >= 0.7*n)) ||
+            ((i == 0) && (j >= 0.7*n)) ||
+            ((i >= 0.7*n) && (j == 0))
+           )
+        {
+          if (i == j)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+            arrow(87, nx[j], ny[j]);
+            continue;
+          }
+          if ((i - j == 1) || (i - j == -n + 1))
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(45, nx[j], ny[j]);
+            continue;
+          }
+          if ((i - j == -1) || (i - j == n - 1))
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            arrow(225, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
+          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
+          continue;
+        }
+        MoveToEx(hdc, nx[i], ny[i], NULL);
+        LineTo(hdc, nx[j], ny[j]);
+        arrow((180 - (atan2(ny[j]-ny[i],nx[j]-nx[i]) * 180 / pi)),nx[j],ny[j]);
       }
     }
   }
-
-  //Arc(hdc, nx[0], ny[0]-40, nx[2], ny[2]+40, nx[2], ny[2], nx[0], ny[0]);
 
   for (int i = 0; i < n; i++)
   {
@@ -223,30 +276,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
       }
   }
 
-/*
-    SelectObject(hdc, KPen);
-    MoveToEx(hdc, nx[0], ny[0], NULL); //сделать текущими координаты x1, y1
-    LineTo(hdc, nx[1], ny[1]);
-*/
-  //arrow(0, nx[1] - dx, ny[1]);
-
-  //  BOOL Arc(HDC hdc, int xLeft, int yTop, int xRight, int yBottom,
-  //int xStart, int yStart, int xEnd, int yEnd);
-
-  //Arc(hdc, nx[0], ny[0] - 40, nx[2], ny[2] + 40, nx[2], ny[2], nx[0], ny[0]);
-  //arrow(-45.0,nx[2]-dx*0.5,ny[2]-dy*0.8);
-
-  EndPaint(hWnd, &ps);//малювання закінчене
+  EndPaint(hWnd, &ps);
   break;
 
-  //сообщение выхода - разрушение окна
   case WM_DESTROY:
-  PostQuitMessage(0); //Посылаем сообщение выхода с кодом 0 - нормальное завершение
+  PostQuitMessage(0);
   break;
 
   default:
   return( DefWindowProc(hWnd, messg, wParam, lParam) );
-  //освобождаем очередь приложения от нераспознаных
   }
-    return 0;
+  return 0;
 }
