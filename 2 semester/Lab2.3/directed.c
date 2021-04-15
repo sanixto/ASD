@@ -34,10 +34,8 @@ double ** mulmr(double coef, double ** mat)
   return mat;
 }
 
-//Создаём прототип функции окна, которая будет определена ниже
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-//объявляем строку-имя программы
 char ProgName[] = "Лабораторна робота 3";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -172,13 +170,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
             arrow(87, nx[j], ny[j]);
             continue;
           }
-          if (i - j == 1)
+          if ((i - j == 1) && (A[j][i] != 1))
           {
             MoveToEx(hdc, nx[i], ny[i], NULL);
             LineTo(hdc, nx[j], ny[j]);
             arrow(-45, nx[j], ny[j]);
             continue;
           }
+
           if (i - j == -1)
           {
             MoveToEx(hdc, nx[i], ny[i], NULL);
@@ -202,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
             arrow(-87, nx[j], ny[j]);
             continue;
           }
-          if (i - j == 1)
+          if ((i - j == 1) && (A[j][i] != 1))
           {
             MoveToEx(hdc, nx[i], ny[i], NULL);
             LineTo(hdc, nx[j], ny[j]);
@@ -237,7 +236,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
             arrow(87, nx[j], ny[j]);
             continue;
           }
-          if ((i - j == 1) || (i - j == -n + 1))
+          if (
+              ((i - j == 1) && (A[j][i] != 1)) ||
+              ((i - j == -n + 1) && (A[j][i] != 1))
+             )
           {
             MoveToEx(hdc, nx[i], ny[i], NULL);
             LineTo(hdc, nx[j], ny[j]);
