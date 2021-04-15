@@ -33,6 +33,21 @@ double ** mulmr(double coef, double ** mat)
   return mat;
 }
 
+double ** symmetryMatrix(double **mat)
+{
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (mat[i][j] == 1)
+      {
+          mat[j][i] = 1;
+      }
+    }
+  }
+  return mat;
+}
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 char ProgName[] = "Лабораторна робота 3";
@@ -40,40 +55,40 @@ char ProgName[] = "Лабораторна робота 3";
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpszCmdLine, int nCmdShow)
 {
-    HWND hWnd;
-    MSG lpMsg;
+  HWND hWnd;
+  MSG lpMsg;
 
-    WNDCLASS w;
+  WNDCLASS w;
 
-    w.lpszClassName = ProgName;
-    w.hInstance = hInstance;
-    w.lpfnWndProc = WndProc;
-    w.hCursor = LoadCursor(NULL, IDC_ARROW);
-    w.hIcon = 0;
-    w.lpszMenuName = 0;
-    w.hbrBackground = LTGRAY_BRUSH;
-    w.style = CS_HREDRAW|CS_VREDRAW;
-    w.cbClsExtra = 0;
-    w.cbWndExtra = 0;
+  w.lpszClassName = ProgName;
+  w.hInstance = hInstance;
+  w.lpfnWndProc = WndProc;
+  w.hCursor = LoadCursor(NULL, IDC_ARROW);
+  w.hIcon = 0;
+  w.lpszMenuName = 0;
+  w.hbrBackground = LTGRAY_BRUSH;
+  w.style = CS_HREDRAW|CS_VREDRAW;
+  w.cbClsExtra = 0;
+  w.cbWndExtra = 0;
 
-    if ( !RegisterClass(&w) ) return 0;
+  if ( !RegisterClass(&w) ) return 0;
 
-    hWnd = CreateWindow(ProgName,
-                        "LAB 3 Gakavy IP-04",
-                         WS_OVERLAPPEDWINDOW,
-                         400, 100, 900, 600,
-                         (HWND)NULL, (HMENU)NULL,
-                         (HINSTANCE)hInstance,
-                         (HINSTANCE)NULL);
+  hWnd = CreateWindow(ProgName,
+                      "LAB 3 Gakavy IP-04",
+                      WS_OVERLAPPEDWINDOW,
+                      400, 100, 900, 600,
+                      (HWND)NULL, (HMENU)NULL,
+                      (HINSTANCE)hInstance,
+                      (HINSTANCE)NULL);
 
-    ShowWindow(hWnd, nCmdShow);
+  ShowWindow(hWnd, nCmdShow);
 
-    while ( GetMessage(&lpMsg, hWnd, 0, 0) )
-    {
-      TranslateMessage(&lpMsg);
-      DispatchMessage(&lpMsg);
-    }
-    return(lpMsg.wParam);
+  while ( GetMessage(&lpMsg, hWnd, 0, 0) )
+  {
+    TranslateMessage(&lpMsg);
+    DispatchMessage(&lpMsg);
+  }
+  return(lpMsg.wParam);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
@@ -92,7 +107,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   int ny[n] = {};
   int num = 100;
   int dx = 16, dy = 16, dtx = 5;
-
   HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
   HPEN KPen = CreatePen(PS_SOLID, 1, RGB(20, 20, 5));
 
@@ -124,68 +138,122 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   double cf = 1.0 - 4*0.005 - 0.25;
   double ** A = mulmr(cf, T);
 
+  A = symmetryMatrix(A);
+
   printf("Matrix non-directed \n");
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      printf("%.0f ", A[i][j]);
+    }
+    printf("\n");
+  }
+
+  SelectObject(hdc, KPen);
+
+  int nx0, ny0, R;
+  int k = 0;
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = k; j < n; j++)
+    {
+      if (A[i][j] == 1)
+      {
+        if ((i <= 0.3*n) && (j<= 0.3*n))
+        {
+          if (i == j)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == 1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == -1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          continue;        }
+        if (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j<= 0.7*n)))
+        {
+          if (i == j)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] + 40, nx[j], ny[j], nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == 1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          if (i - j == -1)
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          continue;
+        }
+        if (
+            ((i >= 0.7*n) && (j >= 0.7*n)) ||
+            ((i == 0) && (j >= 0.7*n)) ||
+            ((i >= 0.7*n) && (j == 0))
+           )
+        {
+          if (i == j)
+          {
+            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
+            continue;
+          }
+          if ((i - j == 1) || (i - j == -n + 1))
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          if ((i - j == -1) || (i - j == n - 1))
+          {
+            MoveToEx(hdc, nx[i], ny[i], NULL);
+            LineTo(hdc, nx[j], ny[j]);
+            continue;
+          }
+          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
+          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
+          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
+          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
+          continue;
+        }
+        MoveToEx(hdc, nx[i], ny[i], NULL);
+        LineTo(hdc, nx[j], ny[j]);
+      }
+    }
+    k++;
+  }
 
   for (int i = 0; i < n; i++)
   {
       for (int j = 0; j < n; j++)
       {
-          printf("%.0f ", A[i][j]);
+        Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
+        TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
       }
-      printf("\n");
-  }
-
-  SelectObject(hdc, KPen);
-
-  for (int i = 0; i < n; i++)
-  {
-    for (int j = 0; j < n; j++)
-    {
-      if (A[i][j] == 1)
-      {
-        MoveToEx(hdc, nx[i], ny[i], NULL);
-        if (i == j)
-        {
-          if (i <= 0.3*n)
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
-          } else if (i <= 0.7*n)
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] + 40, nx[j], ny[j], nx[j], ny[j]);
-          } else
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] - 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
-          }
-        } else if (labs(i - j) == 1 || labs(i - j) == n - 1 )
-        {
-          LineTo(hdc, nx[j], ny[j]);
-        } else if (
-                   ((i <= 0.3*n) && (j <= 0.3*n)) ||
-                   (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j <= 0.7*n))) ||
-                   ((i >= 0.7*n) && (j >= 0.7*n)) ||
-                   ((i >= 0.7*n) && (j == 0)) ||
-                   ((i == 0) && (j >= 0.7*n))
-                  )
-        {
-            int nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-            int ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-            int R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-        }else
-        {
-          LineTo(hdc, nx[j], ny[j]);
-        }
-      }
-    }
-  }
-
-  for (int i = 0; i < n; i++)
-  {
-    for (int j = 0; j < n; j++)
-    {
-      Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
-      TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
-    }
   }
 
   EndPaint(hWnd, &ps);
