@@ -21,21 +21,62 @@ double ** randm(int rows, int columns)
   return matrix;
 }
 
-double ** mulmr(double coef, double ** mat)
+double ** mulmr(double coef, double ** matrix)
 {
   for (int i = 0; i < n; i++)
   {
     for (int j = 0; j < n; j++)
     {
-      mat[i][j] *= coef;
-      mat[i][j] = (mat[i][j] > 1.0) ? 1 : 0;
+      matrix[i][j] *= coef;
+      matrix[i][j] = (matrix[i][j] > 1.0) ? 1 : 0;
     }
   }
-  return mat;
+  return matrix;
 }
+
+double ** cloneMatrix(double ** matrix, double ** matrixToCopy)
+{
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      matrix[i][j] = matrixToCopy[i][j];
+    }
+  }
+  return matrix;
+}
+
+double ** symmetryMatrix(double **matrix)
+{
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (matrix[i][j] == 1)
+      {
+          matrix[j][i] = 1;
+      }
+    }
+  }
+  return matrix;
+}
+
+void printMatrix(double ** matrix)
+{
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      printf("%.0f ", matrix[i][j]);
+    }
+    printf("\n");
+  }
+}
+
 void showVertexDegree(double ** matrix)
 {
   int degree = 0, inDeg = 0, outDeg = 0;
+  int f = 1, tmp = 0;
 
   printf("\n\n");
   for (int i = 0; i < n; i++)
@@ -47,12 +88,20 @@ void showVertexDegree(double ** matrix)
     }
     degree = inDeg + outDeg;
     if (matrix[i][i] == 1) degree--;
-
+    if ((degree != tmp) && (i > 0)) f = 0;
     printf("Graph vertex is %d , degree = %d, input degree = %d , output degree = %d   ", i + 1, degree, inDeg, outDeg);
     printf("\n\n");
+    tmp = degree;
     inDeg = 0;
     outDeg = 0;
     degree = 0;
+  }
+  if (f == 0)
+  {
+    printf("Graph isn't homogeneous");
+  } else
+  {
+    printf("Graph is homogeneous, degree = %d", tmp);
   }
 }
 
@@ -74,10 +123,9 @@ void showHangingAndIsolatedVertex(double ** matrix)
   }
 }
 
-
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-char ProgName[] = "Лабораторна робота 3";
+char ProgName[] = "Лабораторна робота 4";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpszCmdLine, int nCmdShow)
@@ -103,7 +151,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   hWnd = CreateWindow(ProgName,
                       "LAB 3 Gakavy IP-04",
                       WS_OVERLAPPEDWINDOW,
-                      400, 100, 900, 600,
+                      200, 100, 1400, 600,
                       (HWND)NULL, (HMENU)NULL,
                       (HINSTANCE)hInstance,
                       (HINSTANCE)NULL);
@@ -146,192 +194,309 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
 
   hdc = BeginPaint(hWnd, &ps);
   char * nn[n] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-  int nx[n] = {};
-  int ny[n] = {};
+  int nxA[n] = {};
+  int nyA[n] = {};
+  int nxB[n] = {};
+  int nyB[n] = {};
+
   int num = 100;
   int dx = 16, dy = 16, dtx = 5;
   HPEN BPen = CreatePen(PS_SOLID, 2, RGB(50, 0, 255));
   HPEN KPen = CreatePen(PS_SOLID, 1, RGB(20, 20, 5));
 
-  SelectObject(hdc, BPen);
-
   for (int i = 0; i < n; i++)
   {
     if (i == 0)
     {
-      nx[i] = 400;
-      ny[i] = 100;
+      nxA[i] = 350;
+      nyA[i] = 100;
+      nxB[i] = 1000;
+      nyB[i] = 100;
     } else if (i <= 0.3*n)
     {
-      nx[i] = nx[i - 1] + num;
-      ny[i] = ny[i - 1] + num;
+      nxA[i] = nxA[i - 1] + num;
+      nyA[i] = nyA[i - 1] + num;
+      nxB[i] = nxB[i - 1] + num;
+      nyB[i] = nyB[i - 1] + num;
     } else if (i <= 0.7*n)
     {
-      nx[i] = nx[i - 1] - 1.5*num;
-      ny[i] = ny[i - 1];
+      nxA[i] = nxA[i - 1] - 1.5*num;
+      nyA[i] = nyA[i - 1];
+      nxB[i] = nxB[i - 1] - 1.5*num;
+      nyB[i] = nyB[i - 1];
     } else
     {
-      nx[i] = nx[i - 1] + num;
-      ny[i] = ny[i - 1] - num;
+      nxA[i] = nxA[i - 1] + num;
+      nyA[i] = nyA[i - 1] - num;
+      nxB[i] = nxB[i - 1] + num;
+      nyB[i] = nyB[i - 1] - num;
     }
   }
 
-  //srand(0404);
+  srand(0404);
   double ** T = randm(n, n);
   double cf = 1.0 - 4*0.005 - 0.25;
   double ** A = mulmr(cf, T);
+  double ** B = randm(n, n);
+  B = cloneMatrix(B, A);
+  B = symmetryMatrix(B);
 
-  printf("Matrix directed \n");
-
-  for (int i = 0; i < n; i++)
+  void drawGraphDirected(double ** matrix)
   {
-    for (int j = 0; j < n; j++)
+    SelectObject(hdc, KPen);
+    int nx0, ny0, R;
+    double frsAdd, secAdd;
+    for (int i = 0; i < n; i++)
     {
-      printf("%.0f ", A[i][j]);
-    }
-    printf("\n");
-  }
-
-  SelectObject(hdc, KPen);
-
-  int nx0, ny0, R;
-  double frsAdd, secAdd;
-
-  for (int i = 0; i < n; i++)
-  {
-    for (int j = 0; j < n; j++)
-    {
-      if (A[i][j] == 1)
+      for (int j = 0; j < n; j++)
       {
-        if ((i <= 0.3*n) && (j<= 0.3*n))
+        if (matrix[i][j] == 1)
         {
-          if (i == j)
+          if ((i <= 0.3*n) && (j<= 0.3*n))
           {
-            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
-            arrow(87, nx[j], ny[j]);
-            continue;
-          }
-          if ((i - j == 1) && (A[j][i] != 1))
-          {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(-45, nx[j], ny[j]);
-            continue;
-          }
+            if (i == j)
+            {
+              Arc(hdc, nxA[j], nyA[j], nxA[j] + 40, nyA[j] - 40, nxA[j], nyA[j], nxA[j], nyA[j]);
+              arrow(87, nxA[j], nyA[j]);
+              continue;
+            }
+            if ((i - j == 1) && (matrix[j][i] != 1))
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(-45, nxA[j], nyA[j]);
+              continue;
+            }
 
-          if (i - j == -1)
-          {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(-225, nx[j], ny[j]);
-            continue;
-          }
-          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
-          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
-          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
-          continue;        }
-        if (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j<= 0.7*n)))
-        {
-          if (i == j)
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] + 40, nx[j], ny[j], nx[j], ny[j]);
-            arrow(-87, nx[j], ny[j]);
-            continue;
-          }
-          if ((i - j == 1) && (A[j][i] != 1))
-          {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(180, nx[j], ny[j]);
-            continue;
-          }
-          if (i - j == -1)
-          {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(0, nx[j], ny[j]);
-            continue;
-          }
-          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
-          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
-          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
-          continue;
-        }
-        if (
-            ((i >= 0.7*n) && (j >= 0.7*n)) ||
-            ((i == 0) && (j >= 0.7*n)) ||
-            ((i >= 0.7*n) && (j == 0))
-           )
-        {
-          if (i == j)
-          {
-            Arc(hdc, nx[j], ny[j], nx[j] + 40, ny[j] - 40, nx[j], ny[j], nx[j], ny[j]);
-            arrow(87, nx[j], ny[j]);
+            if (i - j == -1)
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(-225, nxA[j], nyA[j]);
+              continue;
+            }
+            nx0 = (nxA[i] + nxA[j]) / 2 + (nyA[i] - nyA[j]);
+            ny0 = (nyA[i] + nyA[j]) / 2 - (nxA[i] - nxA[j]);
+            R = sqrt(pow(nxA[i] - nx0, 2) + pow(nyA[i] - ny0, 2));
+            frsAdd = atan2(nyA[j] - nyA[i], nxA[j] - nxA[i]);
+            secAdd = atan2(sqrt(pow(nxA[j] - nxA[i], 2) + pow(nyA[j] - nyA[i], 2)), R);
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxA[j], nyA[j], nxA[i], nyA[i]);
+            arrow((180 - (180/pi*(frsAdd + secAdd/2))), nxA[j], nyA[j]);
+            continue;        }
+            if (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j<= 0.7*n)))
+            {
+              if (i == j)
+              {
+                Arc(hdc, nxA[j], nyA[j], nxA[j] + 40, nyA[j] + 40, nxA[j], nyA[j], nxA[j], nyA[j]);
+                arrow(-87, nxA[j], nyA[j]);
+                continue;
+              }
+            if ((i - j == 1) && (matrix[j][i] != 1))
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(180, nxA[j], nyA[j]);
+              continue;
+            }
+            if (i - j == -1)
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(0, nxA[j], nyA[j]);
+              continue;
+            }
+            nx0 = (nxA[i] + nxA[j]) / 2 + (nyA[i] - nyA[j]);
+            ny0 = (nyA[i] + nyA[j]) / 2 - (nxA[i] - nxA[j]);
+            R = sqrt(pow(nxA[i] - nx0, 2) + pow(nyA[i] - ny0, 2));
+            frsAdd = atan2(nyA[j] - nyA[i], nxA[j] - nxA[i]);
+            secAdd = atan2(sqrt(pow(nxA[j] - nxA[i], 2) + pow(nyA[j] - nyA[i], 2)), R);
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxA[j], nyA[j], nxA[i], nyA[i]);
+            arrow((180 - (180/pi*(frsAdd + secAdd/2))), nxA[j], nyA[j]);
             continue;
           }
           if (
-              ((i - j == 1) && (A[j][i] != 1)) ||
-              ((i - j == -n + 1) && (A[j][i] != 1))
+              ((i >= 0.7*n) && (j >= 0.7*n)) ||
+              ((i == 0) && (j >= 0.7*n)) ||
+              ((i >= 0.7*n) && (j == 0))
              )
           {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(45, nx[j], ny[j]);
+            if (i == j)
+            {
+              Arc(hdc, nxA[j], nyA[j], nxA[j] + 40, nyA[j] - 40, nxA[j], nyA[j], nxA[j], nyA[j]);
+              arrow(87, nxA[j], nyA[j]);
+              continue;
+            }
+            if (
+                ((i - j == 1) && (A[j][i] != 1)) ||
+                ((i - j == -n + 1) && (A[j][i] != 1))
+               )
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(45, nxA[j], nyA[j]);
+              continue;
+            }
+            if ((i - j == -1) || (i - j == n - 1))
+            {
+              MoveToEx(hdc, nxA[i], nyA[i], NULL);
+              LineTo(hdc, nxA[j], nyA[j]);
+              arrow(225, nxA[j], nyA[j]);
+              continue;
+            }
+            nx0 = (nxA[i] + nxA[j]) / 2 + (nyA[i] - nyA[j]);
+            ny0 = (nyA[i] + nyA[j]) / 2 - (nxA[i] - nxA[j]);
+            R = sqrt(pow(nxA[i] - nx0, 2) + pow(nyA[i] - ny0, 2));
+            frsAdd = atan2(nyA[j] - nyA[i], nxA[j] - nxA[i]);
+            secAdd = atan2(sqrt(pow(nxA[j] - nxA[i], 2) + pow(nyA[j] - nyA[i], 2)), R);
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxA[j], nyA[j], nxA[i], nyA[i]);
+            arrow((180 - (180/pi*(frsAdd + secAdd/2))), nxA[j], nyA[j]);
             continue;
           }
-          if ((i - j == -1) || (i - j == n - 1))
+          if ((matrix[i][j] == matrix[j][i]) && (i < j))
           {
-            MoveToEx(hdc, nx[i], ny[i], NULL);
-            LineTo(hdc, nx[j], ny[j]);
-            arrow(225, nx[j], ny[j]);
+            nx0 = (nxA[i] + nxA[j]) / 2 + (nyA[i] - nyA[j]);
+            ny0 = (nyA[i] + nyA[j]) / 2 - (nxA[i] - nxA[j]);
+            R = sqrt(pow(nxA[i] - nx0, 2) + pow(nyA[i] - ny0, 2));
+            frsAdd = atan2(nyA[j] - nyA[i], nxA[j] - nxA[i]);
+            secAdd = atan2(sqrt(pow(nxA[j] - nxA[i], 2) + pow(nyA[j] - nyA[i], 2)), R);
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxA[j], nyA[j], nxA[i], nyA[i]);
+            arrow((180 - (180/pi*(frsAdd + secAdd/2))), nxA[j], nyA[j]);
             continue;
           }
-          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
-          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
-          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
-          continue;
+          MoveToEx(hdc, nxA[i], nyA[i], NULL);
+          LineTo(hdc, nxA[j], nyA[j]);
+          arrow((180 - (atan2(nyA[j]-nyA[i],nxA[j]-nxA[i]) * 180 / pi)),nxA[j],nyA[j]);
         }
-        if ((A[i][j] == A[j][i]) && (i < j))
-        {
-          nx0 = (nx[i] + nx[j]) / 2 + (ny[i] - ny[j]);
-          ny0 = (ny[i] + ny[j]) / 2 - (nx[i] - nx[j]);
-          R = sqrt(pow(nx[i] - nx0, 2) + pow(ny[i] - ny0, 2));
-          frsAdd = atan2(ny[j] - ny[i], nx[j] - nx[i]);
-          secAdd = atan2(sqrt(pow(nx[j] - nx[i], 2) + pow(ny[j] - ny[i], 2)), R);
-          Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nx[j], ny[j], nx[i], ny[i]);
-          arrow((180 - (180/pi*(frsAdd + secAdd/2))), nx[j], ny[j]);
-          continue;
-        }
-        MoveToEx(hdc, nx[i], ny[i], NULL);
-        LineTo(hdc, nx[j], ny[j]);
-        arrow((180 - (atan2(ny[j]-ny[i],nx[j]-nx[i]) * 180 / pi)),nx[j],ny[j]);
+      }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        Ellipse(hdc, nxA[i] - dx, nyA[i] - dy, nxA[i] + dx, nyA[i] + dy);
+        TextOut(hdc, nxA[i] - dtx, nyA[i] - dy / 2,  nn[i], 2);
       }
     }
   }
 
-  for (int i = 0; i < n; i++)
+  void drawGraphNonDirected(double ** matrix)
   {
-    for (int j = 0; j < n; j++)
+    SelectObject(hdc, KPen);
+    int nx0, ny0, R;
+    int k = 0;
+    for (int i = 0; i < n; i++)
     {
-      Ellipse(hdc, nx[i] - dx, ny[i] - dy, nx[i] + dx, ny[i] + dy);
-      TextOut(hdc, nx[i] - dtx, ny[i] - dy / 2,  nn[i], 2);
+      for (int j = k; j < n; j++)
+      {
+        if (matrix[i][j] == 1)
+        {
+          if ((i <= 0.3*n) && (j<= 0.3*n))
+          {
+            if (i == j)
+            {
+              Arc(hdc, nxB[j], nyB[j], nxB[j] + 40, nyB[j] - 40, nxB[j], nyB[j], nxB[j], nyB[j]);
+              continue;
+            }
+            if (i - j == 1)
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            if (i - j == -1)
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            nx0 = (nxB[i] + nxB[j]) / 2 + (nyB[i] - nyB[j]);
+            ny0 = (nyB[i] + nyB[j]) / 2 - (nxB[i] - nxB[j]);
+            R = sqrt(pow(nxB[i] - nx0, 2) + pow(nyB[i] - ny0, 2));
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxB[j], nyB[j], nxB[i], nyB[i]);
+            continue;        }
+          if (((i >= 0.3*n) && (i <= 0.7*n)) && ((j >= 0.3*n) && (j<= 0.7*n)))
+          {
+            if (i == j)
+            {
+              Arc(hdc, nxB[j], nyB[j], nxB[j] + 40, nyB[j] + 40, nxB[j], nyB[j], nxB[j], nyB[j]);
+              continue;
+            }
+            if (i - j == 1)
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            if (i - j == -1)
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            nx0 = (nxB[i] + nxB[j]) / 2 + (nyB[i] - nyB[j]);
+            ny0 = (nyB[i] + nyB[j]) / 2 - (nxB[i] - nxB[j]);
+            R = sqrt(pow(nxB[i] - nx0, 2) + pow(nyB[i] - ny0, 2));
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxB[j], nyB[j], nxB[i], nyB[i]);
+            continue;
+          }
+          if (
+              ((i >= 0.7*n) && (j >= 0.7*n)) ||
+              ((i == 0) && (j >= 0.7*n)) ||
+              ((i >= 0.7*n) && (j == 0))
+             )
+          {
+            if (i == j)
+            {
+              Arc(hdc, nxB[j], nyB[j], nxB[j] + 40, nyB[j] - 40, nxB[j], nyB[j], nxB[j], nyB[j]);
+              continue;
+            }
+            if ((i - j == 1) || (i - j == -n + 1))
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            if ((i - j == -1) || (i - j == n - 1))
+            {
+              MoveToEx(hdc, nxB[i], nyB[i], NULL);
+              LineTo(hdc, nxB[j], nyB[j]);
+              continue;
+            }
+            nx0 = (nxB[i] + nxB[j]) / 2 + (nyB[i] - nyB[j]);
+            ny0 = (nyB[i] + nyB[j]) / 2 - (nxB[i] - nxB[j]);
+            R = sqrt(pow(nxB[i] - nx0, 2) + pow(nyB[i] - ny0, 2));
+            Arc(hdc, nx0 - R, ny0 - R, nx0 + R, ny0 + R, nxB[j], nyB[j], nxB[i], nyB[i]);
+            continue;
+          }
+          MoveToEx(hdc, nxB[i], nyB[i], NULL);
+          LineTo(hdc, nxB[j], nyB[j]);
+        }
+      }
+      k++;
+    }
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        Ellipse(hdc, nxB[i] - dx, nyB[i] - dy, nxB[i] + dx, nyB[i] + dy);
+        TextOut(hdc, nxB[i] - dtx, nyB[i] - dy / 2,  nn[i], 2);
+      }
     }
   }
 
+  printf("Directed matrix:\n");
+  printMatrix(A);
+  printf("\n");
+
+  printf("Non-directed matrix:\n");
+  printMatrix(B);
+  drawGraphDirected(A);
+  drawGraphNonDirected(B);
   showVertexDegree(A);
+  showVertexDegree(B);
   showHangingAndIsolatedVertex(A);
+  showHangingAndIsolatedVertex(B);
 
   EndPaint(hWnd, &ps);
   break;
