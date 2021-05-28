@@ -33,7 +33,6 @@ double ** mulmr(double coef, double ** mat)
   }
   return mat;
 }
-
 void showVertexDegree(double ** matrix)
 {
   int degree = 0, inDeg = 0, outDeg = 0;
@@ -49,13 +48,32 @@ void showVertexDegree(double ** matrix)
     degree = inDeg + outDeg;
     if (matrix[i][i] == 1) degree--;
 
-    printf("Graph top is %d , degree = %d, input degree = %d , output degree = %d   ", i + 1, degree, inDeg, outDeg);
+    printf("Graph vertex is %d , degree = %d, input degree = %d , output degree = %d   ", i + 1, degree, inDeg, outDeg);
     printf("\n\n");
     inDeg = 0;
     outDeg = 0;
     degree = 0;
   }
 }
+
+void showHangingAndIsolatedVertex(double ** matrix)
+{
+  int degree = 0;
+
+  printf("\n\n");
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if ((matrix[i][j] == 1) || (matrix[j][i] == 1)) degree++;
+    }
+    if (matrix[i][i] == 1) degree--;
+    if (degree == 1) printf("Vertex %d is hanging \n", i + 1);
+    if (degree == 0) printf("Vertex %d is isolated \n", i + 1);
+    degree = 0;
+  }
+}
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -158,7 +176,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
     }
   }
 
-  srand(0404);
+  //srand(0404);
   double ** T = randm(n, n);
   double cf = 1.0 - 4*0.005 - 0.25;
   double ** A = mulmr(cf, T);
@@ -313,6 +331,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   }
 
   showVertexDegree(A);
+  showHangingAndIsolatedVertex(A);
 
   EndPaint(hWnd, &ps);
   break;
