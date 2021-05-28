@@ -123,6 +123,51 @@ void showHangingAndIsolatedVertex(double ** matrix)
   }
 }
 
+void printWaysMatrix(double ** matrix)
+{
+  printf("\n\n");
+  printf("2-length ways\n");
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (matrix[i][j] == 1)
+      {
+        for (int k = 0; k < n; k++)
+        {
+          if (matrix[j][k] == 1) printf("| %d->%d->%d  |", i + 1, j + 1, k + 1);
+        }
+      }
+    }
+    printf("\n");
+  }
+  printf("\n\n");
+  printf("3-length ways\n");
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (matrix[i][j] == 1)
+      {
+        for (int c1 = 0; c1 < n; c1++)
+        {
+          if (matrix[j][c1] == 1)
+          {
+            for (int c2 = 0; c2 < n; c2++)
+            {
+              if (matrix[c1][c2] == 1)
+              {
+                printf("| %d->%d->%d->%d |", i + 1, j + 1, c1 + 1, c2 + 1);
+              }
+            }
+          }
+        }
+      }
+    }
+    printf_s("\n");
+  }
+}
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 char ProgName[] = "Лабораторна робота 4";
@@ -235,8 +280,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
 
   srand(0404);
   double ** T = randm(n, n);
-  double cf = 1.0 - 4*0.005 - 0.25;
-  double ** A = mulmr(cf, T);
+  double coef = 1.0 - 4*0.01 - 0.3;
+  double ** A = mulmr(coef, T);
   double ** B = randm(n, n);
   B = cloneMatrix(B, A);
   B = symmetryMatrix(B);
@@ -491,12 +536,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
 
   printf("Non-directed matrix:\n");
   printMatrix(B);
-  drawGraphDirected(A);
-  drawGraphNonDirected(B);
+  //drawGraphDirected(A);
+  //drawGraphNonDirected(B);
   showVertexDegree(A);
-  showVertexDegree(B);
   showHangingAndIsolatedVertex(A);
-  showHangingAndIsolatedVertex(B);
+
+
+  T = randm(n, n);
+  double newCoef = 1 - 4 * 0.005 - 0.27;
+  A = mulmr(newCoef, T);
+  printf("\n\n");
+  printf("New directed matrix:\n");
+  printMatrix(A);
+  printf("\n");
+  drawGraphDirected(A);
+  showVertexDegree(A);
+  printWaysMatrix(A);
+
 
   EndPaint(hWnd, &ps);
   break;
