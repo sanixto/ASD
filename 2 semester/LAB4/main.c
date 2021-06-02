@@ -71,6 +71,7 @@ void printMatrix(double ** matrix)
     }
     printf("\n");
   }
+  printf("\n");
 }
 
 void showVertexDegree(double ** matrix)
@@ -98,10 +99,10 @@ void showVertexDegree(double ** matrix)
   }
   if (f == 0)
   {
-    printf("Graph isn't homogeneous");
+    printf("Graph isn't homogeneous\n");
   } else
   {
-    printf("Graph is homogeneous, degree = %d", tmp);
+    printf("Graph is homogeneous, degree = %d \n", tmp);
   }
 }
 
@@ -121,6 +122,7 @@ void showHangingAndIsolatedVertex(double ** matrix)
     if (degree == 0) printf("Vertex %d is isolated \n", i + 1);
     degree = 0;
   }
+  printf("\n");
 }
 
 void printWaysMatrix(double ** matrix)
@@ -166,6 +168,7 @@ void printWaysMatrix(double ** matrix)
     }
     printf_s("\n");
   }
+  printf("\n");
 }
 
 int ** reachAndStrongConnectMatrix(double ** matrix)
@@ -199,6 +202,7 @@ int ** reachAndStrongConnectMatrix(double ** matrix)
     }
     printf("\n");
   }
+  printf("\n");
 
   for (int i = 0; i < n; i++)
   {
@@ -284,6 +288,7 @@ int ** reachAndStrongConnectMatrix(double ** matrix)
     }
     printf("\n");
   }
+  printf("\n");
 }
 
 
@@ -648,32 +653,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
       }
     }
   }
-
+  /*
   printf("Directed matrix:\n");
   printMatrix(A);
-  printf("\n");
 
   printf("Non-directed matrix:\n");
   printMatrix(B);
-  //drawGraphDirected(A);
-  //drawGraphNonDirected(B);
+
+  drawGraphDirected(A);
+  drawGraphNonDirected(B);
+
+  printf("Directed matrix:\n");
   showVertexDegree(A);
   showHangingAndIsolatedVertex(A);
+  printWaysMatrix(A);
+  reachAndStrongConnectMatrix(A);
 
+  printf("Non-directed matrix:\n");
+  showVertexDegree(B);
+  showHangingAndIsolatedVertex(B);
+  printWaysMatrix(B);
+  reachAndStrongConnectMatrix(B);
+  */
 
   T = randm(n, n);
   double newCoef = 1 - 4 * 0.005 - 0.27;
   A = mulmr(newCoef, T);
-  
+
   printf("\n\n");
   printf("New directed matrix:\n");
   printMatrix(A);
-  
+
   printf("\n");
   drawGraphDirected(A);
   showVertexDegree(A);
   printWaysMatrix(A);
+  showHangingAndIsolatedVertex(A);
   reachAndStrongConnectMatrix(A);
+
 
 
   EndPaint(hWnd, &ps);
