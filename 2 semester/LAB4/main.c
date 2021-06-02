@@ -168,6 +168,125 @@ void printWaysMatrix(double ** matrix)
   }
 }
 
+int ** reachAndStrongConnectMatrix(double ** matrix)
+{
+  printf("\n\nThe reach matrix is:\n");
+  int reachabilityMatrix[n][n];
+  int transitiveMatrix[n][n];
+  int strongConnectivityMatrix[n][n];
+
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+      reachabilityMatrix[i][j] = matrix[i][j];
+
+  for (int k = 0; k < n; k++)
+  {
+    for (int i = 0; i < n; i++)
+    {
+      for (int j = 0; j < n; j++)
+      {
+        reachabilityMatrix[i][j] = reachabilityMatrix[i][j] ||
+          (reachabilityMatrix[i][k] && reachabilityMatrix[k][j]);
+      }
+    }
+  }
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      printf("%d ", reachabilityMatrix[i][j]);
+    }
+    printf("\n");
+  }
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      transitiveMatrix[i][j] = reachabilityMatrix[j][i];
+    }
+  }
+
+  int counter = 1;
+  int countery = 1;
+
+  double ** used_verticles = (double * ) malloc(n * sizeof(double * ));
+  for (int i = 0; i < n; i++)
+    used_verticles[i] = (double * ) malloc(n * sizeof(double));
+
+  double ** components = (double * ) malloc(n * sizeof(double * ));
+  for (int i = 0; i < n; i++)
+    components[i] = (double * ) malloc(n * sizeof(double));
+
+  double powered[n][n];
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      powered[i][j] = 0;
+      for (int k = 0; k < n; k++)
+        powered[i][j] += reachabilityMatrix[i][k] * reachabilityMatrix[k][i];
+    }
+  }
+
+  for (int count = 0; count < n; count++)
+  {
+    counter = 1;
+    for (int i = 0; i < n; i++)
+    {
+      if (used_verticles[i] == 1) continue;
+
+      for (int j = 0; j < n; j++)
+      {
+        if (powered[count][j] != powered[i][j]) break;
+        if (j == n - 1)
+        {
+          used_verticles[i] = 1;
+          components[countery][i] = 1;
+          printf("Komponent %d\n", countery);
+          counter++;
+        }
+
+      }
+    }
+
+    if (
+        components[countery][0] || components[countery][1] || components[countery][2] ||
+        components[countery][3] || components[countery][4] || components[countery][5] ||
+        components[countery][6] || components[countery][7] || components[countery][8] ||
+        components[countery][9] || components[countery][10]
+       )
+      countery++;
+  }
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      if (reachabilityMatrix[i][j] == 1 && transitiveMatrix[i][j] == 1)
+      {
+        strongConnectivityMatrix[i][j] = 1;
+      } else
+      {
+        strongConnectivityMatrix[i][j] = 0;
+      }
+    }
+  }
+  printf("\n");
+  printf("Connectivity matrix is: \n");
+
+  for (int i = 0; i < n; i++) //Вивід матриці зв'язності
+  {
+    for (int j = 0; j < n; j++)
+    {
+      printf("%d ", strongConnectivityMatrix[i][j]);
+    }
+    printf("\n");
+  }
+}
+
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 char ProgName[] = "Лабораторна робота 4";
@@ -545,13 +664,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg,
   T = randm(n, n);
   double newCoef = 1 - 4 * 0.005 - 0.27;
   A = mulmr(newCoef, T);
+  
   printf("\n\n");
   printf("New directed matrix:\n");
   printMatrix(A);
+  
   printf("\n");
   drawGraphDirected(A);
   showVertexDegree(A);
   printWaysMatrix(A);
+  reachAndStrongConnectMatrix(A);
 
 
   EndPaint(hWnd, &ps);
