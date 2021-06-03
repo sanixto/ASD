@@ -103,7 +103,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
   if( !RegisterClass(&w) ) return 0;
 
   hWnd = CreateWindow(ProgName,
-            "Lab3. Fartushnyak Anastasia IP-04",
+            "Lab5. Hakaviy O. IP-04",
             WS_OVERLAPPEDWINDOW,
             400, 100, 1200, 800,
             (HWND)NULL, (HMENU)NULL,
